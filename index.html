@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel Negocios — De lo que no hablamos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: #f7f6f3; }
+    .wrap { background: #f7f6f3; padding: 1.5rem 1rem 3rem; max-width: 700px; margin: 0 auto; }
+    .header { background: #000; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .header-left { flex: 1; }
+    .header-tag { font-size: 11px; font-weight: 600; color: #ffb90d; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+    .header-title { font-size: 17px; font-weight: 600; color: #fff; line-height: 1.35; }
+    .header-sub { font-size: 12px; color: #888; margin-top: 4px; }
+    .total-badge { background: #0a80e7; color: #fff; border-radius: 10px; padding: 0.6rem 1rem; text-align: center; flex-shrink: 0; }
+    .total-num { font-size: 26px; font-weight: 700; line-height: 1; }
+    .total-label { font-size: 10px; color: #a8d4f7; margin-top: 2px; }
+    .controls { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .ctrl-btn { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: 1px solid #ccc; background: #fff; color: #333; cursor: pointer; transition: all 0.15s; }
+    .ctrl-btn:hover { background: #000; color: #fff; border-color: #000; }
+    .ctrl-btn.active { background: #000; color: #fff; border-color: #000; }
+    .list { display: flex; flex-direction: column; gap: 10px; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e8e8e8; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 14px; transition: all 0.2s; }
+    .card:hover { border-color: #0a80e7; }
+    .card.top1 { border-left: 3px solid #ffb90d; }
+    .card.top2 { border-left: 3px solid #0a80e7; }
+    .card.top3 { border-left: 3px solid #f6533c; }
+    .card-rank { font-size: 13px; font-weight: 700; color: #ccc; width: 22px; flex-shrink: 0; text-align: center; }
+    .card.top1 .card-rank { color: #ffb90d; }
+    .card.top2 .card-rank { color: #0a80e7; }
+    .card.top3 .card-rank { color: #f6533c; }
+    .card-body { flex: 1; min-width: 0; }
+    .card-q { font-size: 13px; font-weight: 500; color: #000; line-height: 1.45; }
+    .bar-track { height: 4px; background: #f0f0f0; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; background: #0a80e7; transition: width 0.5s ease; }
+    .card.top1 .bar-fill { background: #ffb90d; }
+    .card.top2 .bar-fill { background: #0a80e7; }
+    .card.top3 .bar-fill { background: #f6533c; }
+    .card-right { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+    .vote-count { font-size: 18px; font-weight: 700; color: #000; line-height: 1; }
+    .vote-label { font-size: 9px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+    .btn-vote { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 7px; border: 1.5px solid #0a80e7; background: #0a80e7; color: #fff; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .btn-vote:hover { background: #0066cc; border-color: #0066cc; }
+    .btn-vote.voted { background: #000; border-color: #000; color: #fff; }
+    .btn-vote.voted:hover { background: #333; border-color: #333; }
+    .pct-label { font-size: 10px; color: #aaa; margin-top: 2px; }
+    .reset-row { margin-top: 1.25rem; text-align: center; }
+    .btn-reset { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; padding: 8px 20px; border-radius: 7px; border: 1px solid #ccc; background: transparent; color: #666; cursor: pointer; }
+    .btn-reset:hover { background: #000; color: #fff; border-color: #000; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; display: inline-block; margin-right: 6px; }
+    .status-dot.live { background: #22c55e; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .status-bar { display: flex; align-items: center; font-size: 11px; color: #888; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-tag">Panel en vivo — Negocios</div>
+      <div class="header-title">¿Qué le preguntarías a las expertas?</div>
+      <div class="header-sub">Vota las preguntas que más quieres escuchar responder</div>
+    </div>
+    <div class="total-badge">
+      <div class="total-num" id="totalVotes">0</div>
+      <div class="total-label">votos totales</div>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Conectando...</span>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn active" id="btn-sort-votes" onclick="sortBy('votes')">↓ Más votadas</button>
+    <button class="ctrl-btn" id="btn-sort-order" onclick="sortBy('order')"># Orden original</button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <div class="reset-row">
+    <button class="btn-reset" onclick="resetAll()">↺ Restaurar todos los votos</button>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://bviudfzsombbobailvdm.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2aXVkZnpzb21iYm9iYWlsdmRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjcxMTAsImV4cCI6MjA4OTM0MzExMH0.Djdp_STHY7Zpw1riTLT5cMiA0lJf1xT-QsOWcuV27m4';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const QUESTIONS = [
+    "¿Cómo empezaron desde cero, y qué harían diferente si tuvieran que volver a empezar hoy?",
+    "¿Cómo vencieron el miedo a lanzarse, y cómo combaten el síndrome del impostor cuando aparece?",
+    "¿Cómo monetizan sus habilidades cuando apenas están empezando y no tienen clientes todavía?",
+    "¿Cómo equilibran el negocio con la vida personal sin quemarse en el proceso?",
+    "¿Cómo saben cuándo escalar y cómo lo hacen sin perder el control de lo que construyeron?",
+    "¿Cómo emprender y seguir trabajando al mismo tiempo sin que ninguno de los dos salga mal?",
+    "¿Cuál fue la decisión más incómoda que tuvieron que tomar para que el negocio sobreviviera?",
+    "¿Cómo consiguen clientes hoy, desde cero, sin una red de contactos grande?",
+    "¿Lo hicieron solas o con ayuda de mentores, socios o comunidad? ¿Cómo armaron ese soporte?",
+    "¿Cómo manejan el tema legal, impuestos y constitución de empresa sin que se convierta en un obstáculo?",
+    "¿Qué habilidad de liderazgo es la más crítica cuando una mujer quiere escalar su negocio?",
+    "¿Cómo saben que es el momento de dejar el trabajo fijo e irse de lleno al emprendimiento?",
+    "¿Cómo han usado la IA en su negocio y qué cambió con eso en su operación diaria?",
+    "¿Qué creencia sobre el dinero o los negocios tuvieron que desaprender para poder crecer?",
+    "¿Cómo emprender con proyección social o desde disciplinas no tradicionales como las humanidades?"
+  ];
+
+  let votes = new Array(15).fill(0);
+  let userVotes = new Array(15).fill(false);
+  let sortMode = 'votes';
+
+  function setStatus(live, text) {
+    document.getElementById('statusDot').className = 'status-dot' + (live ? ' live' : '');
+    document.getElementById('statusText').textContent = text;
+  }
+
+  function getMax() { return Math.max(...votes, 1); }
+  function getTotalVotes() { return votes.reduce((a,b) => a+b, 0); }
+
+  function render() {
+    const max = getMax();
+    const total = getTotalVotes();
+    document.getElementById("totalVotes").textContent = total;
+    let indices = [...Array(15).keys()];
+    if (sortMode === 'votes') indices.sort((a,b) => votes[b] - votes[a] || a - b);
+    document.getElementById("list").innerHTML = indices.map((i, pos) => {
+      const rank = pos + 1;
+      const pct = total > 0 ? Math.round(votes[i] / total * 100) : 0;
+      const barPct = Math.round(votes[i] / max * 100);
+      let topClass = "";
+      if (rank === 1 && votes[i] > 0) topClass = "top1";
+      else if (rank === 2 && votes[i] > 0) topClass = "top2";
+      else if (rank === 3 && votes[i] > 0) topClass = "top3";
+      return `<div class="card ${topClass}">
+        <div class="card-rank">${sortMode === 'votes' ? rank : (i+1)}</div>
+        <div class="card-body">
+          <div class="card-q">${QUESTIONS[i]}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${barPct}%"></div></div>
+          <div class="pct-label">${pct > 0 ? pct + '% de los votos' : 'Sin votos aún'}</div>
+        </div>
+        <div class="card-right">
+          <div class="vote-count">${votes[i]}</div>
+          <div class="vote-label">votos</div>
+          <button class="btn-vote ${userVotes[i] ? 'voted' : ''}" onclick="castVote(${i})">
+            ${userVotes[i] ? '✓ Votado' : '+ Votar'}
+          </button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  async function castVote(i) {
+    const adding = !userVotes[i];
+    userVotes[i] = adding;
+    votes[i] = Math.max(0, votes[i] + (adding ? 1 : -1));
+    render();
+    const newCount = votes[i];
+    await client.from('votes').update({ count: newCount }).eq('question_index', i);
+  }
+
+  function sortBy(mode) {
+    sortMode = mode;
+    document.getElementById("btn-sort-votes").classList.toggle("active", mode === 'votes');
+    document.getElementById("btn-sort-order").classList.toggle("active", mode === 'order');
+    render();
+  }
+
+  async function resetAll() {
+    votes = new Array(15).fill(0);
+    userVotes = new Array(15).fill(false);
+    render();
+    for (let i = 0; i < 15; i++) {
+      await client.from('votes').update({ count: 0 }).eq('question_index', i);
+    }
+  }
+
+  async function loadVotes() {
+    const { data, error } = await client.from('votes').select('question_index, count').order('question_index');
+    if (error) { setStatus(false, 'Error al cargar votos'); return; }
+    data.forEach(row => { votes[row.question_index] = row.count; });
+    render();
+    setStatus(true, 'En vivo — los votos se sincronizan en tiempo real');
+  }
+
+  function subscribeToVotes() {
+    client.channel('votes-channel')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'votes' }, payload => {
+        const { question_index, count } = payload.new;
+        votes[question_index] = count;
+        render();
+      })
+      .subscribe();
+  }
+
+  loadVotes();
+  subscribeToVotes();
+</script>
+</body>
+</html>
