@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel Autopromoción — De lo que no hablamos</title>
+  <title>Panel Liderazgo — De lo que no hablamos</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -60,7 +60,7 @@
 
   <div class="header">
     <div class="header-left">
-      <div class="header-tag">Panel en vivo — Autopromoción</div>
+      <div class="header-tag">Panel en vivo — Liderazgo</div>
       <div class="header-title">¿Qué le preguntarías a las expertas?</div>
       <div class="header-sub">Vota las preguntas que más quieres escuchar responder</div>
     </div>
@@ -95,16 +95,16 @@
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const QUESTIONS = [
-    "¿Qué vale la pena mostrar cuando crees que lo que tienes es demasiado básico, demasiado obvio, o demasiado parecido a lo que ya dijo alguien con más experiencia?",
-    "¿Por qué nos resulta más fácil ver el valor en los demás que en nosotras mismas, y eso tiene solución o es algo con lo que siempre se negocia?",
-    "¿Qué les incomoda todavía de autopromocionarse y qué siguen evitando o con lo que todavía batallan?",
-    "Si tuvieran que empezar desde cero mañana, sin seguidores, sin reputación, sin red, ¿qué harían primero y qué no volverían a hacer?",
-    "¿Cómo se construye visibilidad fuera de las redes: en conversaciones, en reuniones, en espacios de networking?",
-    "¿Qué hace que una deje de esperar validación externa para mostrarse, cuál fue el momento o la decisión que cambió esa dinámica?",
-    "¿En qué momento la autopromoción estratégica empieza a sentirse como un personaje, y cómo saben cuándo cruzaron esa línea?",
-    "¿Cómo hacen para no agotarse con el trabajo, los proyectos, la vida personal, y encima la presión de mantenerse visibles?",
-    "¿Cómo se promocionan dentro de una organización, y qué cambia en esa lógica cuando decides salir y construir algo propio?",
-    "¿Cómo se muestra una con las personas que ya la conocen (colegas, entorno cercano, familia) y cuando el '¿quién se cree?' no viene de desconocidos?"
+    "¿Cómo se aprende a reconocerse líder, antes de que alguien más te lo diga o te dé el cargo?",
+    "¿Cómo se autolideran para poder liderar a otros, y qué pasa cuando eso falla?",
+    "¿Cómo se escala como líder, y qué tuviste que soltar para pasar al siguiente nivel?",
+    "¿Se puede liderar sin querer liderar, o el liderazgo siempre tiene que ser una elección consciente?",
+    "¿Cómo se aprende a tomar decisiones difíciles, las que afectan a personas reales, sin perder la humanidad en el proceso?",
+    "El liderazgo suele ser un lugar solitario. ¿En quién se apoyan cuando necesitan consejo, duda o desahogo?",
+    "¿Cómo lideran cuando no tienen certeza, cuando están tomando decisiones en territorio que nunca han navegado?",
+    "¿Cómo encontraron su propio estilo de liderazgo sin caer en la presión de replicar modelos que no les pertenecen?",
+    "¿Qué verdad sobre el liderazgo les hubiera gustado que alguien les dijera antes de empezar?",
+    "¿Qué es lo más auténtico que han descubierto sobre su propio liderazgo, algo que no estaba en ningún libro ni curso?"
   ];
 
   const N = QUESTIONS.length;
