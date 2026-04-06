@@ -92,7 +92,9 @@
 <script>
   const SUPABASE_URL = 'https://bviudfzsombbobailvdm.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2aXVkZnpzb21iYm9iYWlsdmRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjcxMTAsImV4cCI6MjA4OTM0MzExMH0.Djdp_STHY7Zpw1riTLT5cMiA0lJf1xT-QsOWcuV27m4';
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    global: { fetch: fetch.bind(globalThis) }
+  });
 
   const QUESTIONS = [
     "¿Cómo se aprende a reconocerse líder, antes de que alguien más te lo diga o te dé el cargo?",
@@ -157,7 +159,10 @@
     userVotes[i] = adding;
     votes[i] = Math.max(0, votes[i] + (adding ? 1 : -1));
     render();
-    await client.from('votes').update({ count: votes[i] }).eq('question_index', i);
+    const { error } = await client
+      .from('votes')
+      .upsert({ id: i, question_index: i, count: votes[i] });
+    if (error) console.error('Error votando:', error);
   }
 
   function sortBy(mode) {
@@ -172,27 +177,48 @@
     userVotes = new Array(N).fill(false);
     render();
     for (let i = 0; i < N; i++) {
-      await client.from('votes').update({ count: 0 }).eq('question_index', i);
+      await client.from('votes').upsert({ id: i, question_index: i, count: 0 });
     }
   }
 
   async function loadVotes() {
-    const { data, error } = await client.from('votes').select('question_index, count').order('question_index');
-    if (error) { setStatus(false, 'Error al cargar votos'); return; }
-    data.forEach(row => {
-      if (row.question_index < N) votes[row.question_index] = row.count;
-    });
+    const { data, error } = await client
+      .from('votes')
+      .select('question_index, count')
+      .in('question_index', [...Array(N).keys()]);
+
+    if (error) {
+      console.error('Error cargando:', error);
+      setStatus(false, 'Error al cargar votos: ' + error.message);
+      return;
+    }
+    if (data) {
+      data.forEach(row => {
+        if (row.question_index < N) votes[row.question_index] = row.count;
+      });
+    }
     render();
     setStatus(true, 'En vivo — los votos se sincronizan en tiempo real');
   }
 
   function subscribeToVotes() {
-    client.channel('votes-channel')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'votes' }, payload => {
+    client.channel('votes-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'votes'
+      }, payload => {
         const { question_index, count } = payload.new;
-        if (question_index < N) { votes[question_index] = count; render(); }
+        if (question_index !== undefined && question_index < N) {
+          votes[question_index] = count;
+          render();
+        }
       })
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setStatus(true, 'En vivo — los votos se sincronizan en tiempo real');
+        }
+      });
   }
 
   loadVotes();
